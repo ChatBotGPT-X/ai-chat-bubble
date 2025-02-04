@@ -21,6 +21,8 @@ from dotenv import load_dotenv
 from typing import List
 from pydantic import BaseModel
 import phospho
+# import openai
+from openai import OpenAI
 
 load_dotenv()
 
@@ -197,7 +199,8 @@ class ChatMistral:
         self.domain = domain
         self.embeddings = EmbeddingsVS(domain)
         self.client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
-        self.model = "mistral-large-latest"
+        # self.model = "mistral-large-latest"
+        self.model = "mistral-large-2411"
         self.temperature = 0.7
         self.names_to_functions = {
             "search_context": functools.partial(self.embeddings.search),
@@ -349,6 +352,72 @@ class MainExecute:
             logger.info("Finished scraping.")
             self.embeddings.upload_embeddings()  # upload the embeddings
             logger.info("Finished uploading embeddings.")
+
+    def ask(self, question: str):
+        """
+        Ask a question to the chatbot based on a url.
+        """
+        try:
+            output = ""
+            # Stream the response
+            for chunk in self.chat.chat(question):
+                output += chunk
+                yield chunk  # Continue yielding chunks as they arrive
+
+            # Log the input and output using phospho
+            phospho.log(input=question, output=output)
+
+        except KeyboardInterrupt:
+            logger.info("Exiting program.")
+
+class ChatGptInstance:
+    def __init__(self):
+        self.base_url = "https://openai.api2d.net/v1"
+        self.client = OpenAI(api_key=os.getenv("CHAT_API_KEY"), base_url=self.base_url)
+        self.model = "gpt-3.5-turbo"
+        self.temperature = 0.7
+
+    def chat(self, query: str) -> Generator[str, None, None]:
+
+        system_message = "You are a helpful assistant. Be straightforward and helpful. Keep your answers short and to the point. You answer in the language spoken to you."
+        self.messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": query},
+        ]
+        # chat_response = self.client.chat.stream(
+        #     model=self.model,
+        #     messages=self.messages,
+        #     temperature=self.temperature,
+        # )
+        chat_response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.messages,
+            temperature=self.temperature,
+            stream=True
+        )
+
+        message_to_add = ""
+
+        # for chunk in chat_response:
+        #     if chunk.choices[0].delta.content is not None:
+        #         print(chunk.choices[0].delta.content, end="")
+
+        for data in chat_response:
+            chunk = data.choices[0]
+            if hasattr(chunk, "delta"):
+                delta = chunk.delta
+                if hasattr(delta, "content") and delta.content:
+                    message_to_add += delta.content
+                    yield delta.content
+            elif hasattr(chunk, "content") and chunk.content:
+                message_to_add += chunk.content
+                yield chunk.content
+        self.messages.append(AssistantMessage(content=message_to_add))
+
+
+class MainChatExecute:
+    def __init__(self) -> None:
+        self.chat = ChatGptInstance()
 
     def ask(self, question: str):
         """

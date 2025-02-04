@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from models import QuestionOnUrlRequest
 from typing import Dict, Optional
 from urllib.parse import urlparse
-from models import MainExecute
+from models import MainExecute, MainChatExecute
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
@@ -192,10 +192,19 @@ async def question_on_url(request: QuestionOnUrlRequest):
 
     return StreamingResponse(main_execute.ask(question), media_type="text/plain")
 
+@rate_limiter(limit=2, seconds=5)
+@app.post("/chat")
+async def question_chat(request: QuestionOnUrlRequest):
+    logger.debug(f"Get chat request: {request}, question: {request.question}")
+    question = request.question
+
+    main_execute = MainChatExecute()
+
+    return StreamingResponse(main_execute.ask(question), media_type="text/plain")
 
 if __name__ == "__main__":
-    initialize_domains()
-    submit_url(URL)
+    # initialize_domains()
+    # submit_url(URL)
 
     import uvicorn
 

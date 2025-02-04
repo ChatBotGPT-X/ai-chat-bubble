@@ -7,7 +7,7 @@ dotenv.config();
 module.exports = {
   entry: './interface/chat-bubble.js', // path to your ChatBubble script
   output: {
-    path: path.resolve(__dirname, 'component'),
+    path: path.resolve(__dirname, 'static'),
     filename: 'chat-bubble.js', // output bundled file
   },
   module: {

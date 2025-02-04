@@ -108,3 +108,9 @@ The AI assistant of the AI chat bubble uses [Llama Index](https://docs.llamainde
 Made by juniors for juniors in PARIS - phospho team 🥖🇫🇷
 
 Special thanks to @flamschou, @fred3105, and @oulianov 🧪💚
+
+----
+docker compose：
+docker-compose up --build
+
+npx webpack --config webpack.config.js

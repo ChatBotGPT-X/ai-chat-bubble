@@ -28,6 +28,7 @@ services:
       MISTRAL_API_KEY: ${MISTRAL_API_KEY}
       PHOSPHO_API_KEY: ${PHOSPHO_API_KEY}
       PHOSPHO_PROJECT_ID: ${PHOSPHO_PROJECT_ID}
+      CHAT_API_KEY: ${CHAT_API_KEY}
 
 volumes:
   qdrant_data:

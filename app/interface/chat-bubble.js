@@ -304,7 +304,7 @@ p code {
 }`;
 
 
-const apiUrl = `${process.env.SERVER_URL}/question_on_url`;
+const apiUrl = `${process.env.SERVER_URL}/chat`;
 
 // Create and inject stylesheet
 const styleSheet = document.createElement("style");
