@@ -372,9 +372,12 @@ class MainExecute:
 
 class ChatGptInstance:
     def __init__(self):
-        self.base_url = "https://openai.api2d.net/v1"
+        # self.base_url = "https://openai.api2d.net/v1"
+        # self.client = OpenAI(api_key=os.getenv("CHAT_API_KEY"), base_url=self.base_url)
+        # self.model = "gpt-3.5-turbo"
+        self.base_url = "http://43.160.193.32:80/v1"
         self.client = OpenAI(api_key=os.getenv("CHAT_API_KEY"), base_url=self.base_url)
-        self.model = "gpt-3.5-turbo"
+        self.model = "moonshot-v1-8k"
         self.temperature = 0.7
 
     def chat(self, query: str) -> Generator[str, None, None]:
